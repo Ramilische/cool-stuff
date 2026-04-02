@@ -1,5 +1,7 @@
-from app import app as application
 import sys
+
+from app import app as application
+from db.models import init_db
 
 HOST = '127.0.0.1'
 PORT = 45678
@@ -14,5 +16,5 @@ if __name__ == '__main__':
         DEBUG = True
     elif sys.argv[1] == '--debug' and sys.argv[2] in yes_words:
         DEBUG = True
-
+    init_db()
     application.run(host=HOST, port=PORT, debug=DEBUG)

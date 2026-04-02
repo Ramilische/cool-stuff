@@ -13,7 +13,8 @@ wheels/
 .venv
 
 # User
-.env/*
+.env/db.env
+.env/config.env
 start.sh
 debug.sh
 test.py
