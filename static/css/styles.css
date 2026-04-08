@@ -1,0 +1,167 @@
+@font-face {
+    font-family: "Monogram";
+    src: url("../fonts/monogram-extended.ttf");
+}
+
+:root {
+    --color-light: #F8E9E5;
+    --color-dark: #253657;
+    --color-accent: #E76D8A;
+    --color-secondary: #F5A1A1;
+    --color-lavender: #A69ACA;
+    --color-purple: #6F4367;
+}
+
+* {
+    color: var(--color-dark);
+    font-family: "Monogram";
+}
+
+.alt-text-color {
+    color: var(--color-light)
+}   
+
+h1 {
+    font-size: 56px;
+    margin: 5px 0;
+}
+h2 {
+    font-size: 56px;
+    margin: 5px 0;
+}
+h3 {
+    font-size: 36px;
+    margin: 5px 0;
+}
+.small-text {
+    font-size: 18px;
+    margin: 2px 0;
+}
+
+p {
+    font-size: 24px;
+    margin: 5px 0;
+}
+
+a {
+    font-size: 24px;
+    text-decoration: underline;
+    color: var(--color-lavender);
+}
+
+ul {
+    margin: 0;
+    font-size: 24px;
+}
+
+ol {
+    margin: 0;
+    font-size: 24px;
+}
+
+button {
+    /* Убираю все дефолтные декорации с кнопки */
+    background: none;
+	color: inherit;
+	border: none;
+	padding: 0;
+	font: inherit;
+	cursor: pointer;
+	outline: inherit;
+    
+    font-size: 24px;
+}
+
+body {
+    height: 100vh;
+    width: 100vw;
+    margin: 0;
+    padding: 0;
+
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+
+    background-color: var(--color-light);
+}
+
+header {
+    height: auto;
+    padding: 0 20px;
+
+    background-color: var(--color-dark);
+
+}
+
+main {
+    height: auto;
+    padding: 10px;
+    gap: 10px;
+    display: flex;
+    flex-direction: row;
+    justify-content: space-between;
+    flex-wrap: wrap;
+}
+
+footer {
+    height: auto;
+    padding: 10px 20px;
+
+    background-color: var(--color-dark);
+}
+
+nav {
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 10px;
+    padding: 10px;
+    border: 2px solid var(--color-dark);
+    border-radius: 10px;
+}
+
+.left
+{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+    padding-top: 20px;
+}
+.right
+{
+    display: flex;
+    flex-direction: column;
+    width: 300px;
+}
+
+.center
+{
+    display: flex;
+    flex-direction: column;
+    width: min(1000px, 90%);
+    max-width: 65%;
+}
+
+.card {
+    max-width: 400px;
+    border: 2px solid var(--color-dark);
+    border-radius: 10px;
+}
+.card img {
+    width: 100%;
+    height: auto;
+}
+
+.post img {
+    width: 70%;
+    /* margin: 0 20% 0 10%; */
+    height: auto;
+}
+
+.button-dark {
+    padding: 10px;
+    border-radius: 10px;
+
+    background-color: var(--color-dark);
+    color: var(--color-light);
+}

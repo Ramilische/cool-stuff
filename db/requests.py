@@ -2,38 +2,51 @@ from sqlalchemy import select, update, delete, func
 from pydantic import BaseModel, ConfigDict
 from typing import List
 
-from db.session import session
+from db.session import session as db_session
 from db.models import Post
 
 
 class PostRepository:
+    session = db_session
+
     @staticmethod
     def serialize_post(post: Post):
         return {
-            'post': {
-                'md_file_path': post.markdown_file_path,
-                'content': '',
-                'create_time': post.create_time
-            }
+            'id': post.id,
+            'md_file_path': post.markdown_file_path,
+            'banner_photo_path': post.banner_photo_path,
+            'title': post.title,
+            'description': post.description,
+            'content': '',
+            'create_time': post.create_time
         }
     
     @classmethod
-    async def add_post(cls, markdown_file_path: str):
+    def add_post(cls, title: str, description: str, banner_photo_path: str, markdown_file_path: str):
         if markdown_file_path == '':
             return 400, {'message': 'Empty post'}
         
-        async with session() as session:
-            new_post = Post(markdown_file_path=markdown_file_path)
+        with cls.session() as session:
+            new_post = Post(markdown_file_path=markdown_file_path, title=title, description=description, banner_photo_path=banner_photo_path)
             session.add(new_post)
-            await session.commit()
+            session.commit()
             
             return 201, {'message': 'Post created'}
     
     @classmethod
-    async def get_post(cls, post_id: int):
-        async with session() as session:
-            post = await session.scalar(select(Post).where(Post.id == post_id))
+    def get_post(cls, post_id: int):
+        with cls.session() as session:
+            post = session.scalar(select(Post).where(Post.id == post_id))
             if not post:
                 return 400, {'message': 'Post with this ID does not exist'}
             
             return 200, PostRepository.serialize_post(post=post)
+    
+    @classmethod
+    def all_posts(cls):
+        with cls.session() as session:
+            posts = session.scalars(select(Post))
+            if not posts:
+                return 400, {'message': 'No posts'}
+            
+            return 200, [PostRepository.serialize_post(post=post) for post in posts]

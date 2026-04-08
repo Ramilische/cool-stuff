@@ -1,6 +1,9 @@
 from flask import Flask, render_template, url_for, redirect
+from markupsafe import Markup
+
 from db.requests import PostRepository
 from db.models import init_db
+from utils.md_to_html import make_post
 
 app = Flask(__name__)
 
@@ -14,7 +17,25 @@ def homepage():
 
 @app.route('/blog')
 def blog():
-    return render_template('app/blog.html', title='Блог', nav=nav)
+    code, res = PostRepository.all_posts()
+    if code == 200:
+        posts = res
+    else:
+        return render_template('app/blog.html', title='Блог', nav=nav, posts=[])
+    for post in posts:
+        post['banner_photo_path'] = url_for('static', filename=f'img/{post['banner_photo_path']}')
+        post['content'] = make_post(post['md_file_path'])
+        post['url'] = url_for('post', id=post['id'])
+    return render_template('app/blog.html', title='Блог', nav=nav, posts=posts)
+
+
+@app.route('/post/<int:id>')
+def post(id: int):
+    code, post = PostRepository.get_post(post_id=id)
+    if code == 200:
+        return render_template('app/post.html', title='Блог', nav=nav, content=Markup(make_post(post['md_file_path'])))
+    else:
+        return redirect(url_for('blog'))
 
 
 @app.route('/gallery')
