@@ -22,7 +22,12 @@ class PostRepository:
         }
     
     @classmethod
-    def add_post(cls, title: str, description: str, banner_photo_path: str, markdown_file_path: str):
+    def add_post(cls, post: dict):
+        title: str = post['title']
+        description: str = post['desc']
+        banner_photo_path: str = post['img-path']
+        markdown_file_path: str = post['md-path']
+
         if markdown_file_path == '':
             return 400, {'message': 'Empty post'}
         

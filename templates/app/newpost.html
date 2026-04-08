@@ -2,4 +2,29 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
+
+{% for msg in get_flashed_messages() %}
+<div class="flash">{{ msg }}</div>
+{% endfor %}
+
+<form action="/newpost" target="_self" method="post">
+
+    <label for="title-input">Заголовок</label><br>
+    <input type="text" name="title" id="title-input"><br>
+
+    <label for="desc-input">Описание</label><br>
+    <input type="text" name="desc" id="desc-input"><br>
+
+    <label for="md-input">Путь до файла статьи</label><br>
+    <input type="text" name="md-path" id="md-input"><br>
+
+    <label for="img-input">Путь до баннера</label><br>
+    <input type="text" name="img-path" id="img-input"><br>
+
+    <label for="img-file" class="custom-file-upload">Фото для баннера поста</label>
+    <input type="file" name="img-file" id="img-file"><br>
+
+    <input id="submit-post-button" type="submit" value="Создать пост" style="margin-top: 20px;">
+
+</form>
 {% endblock %}

@@ -1,13 +1,28 @@
-from flask import Flask, render_template, url_for, redirect
+from os import getenv, path
+
+import dotenv
+from flask import Flask, render_template, url_for, redirect, request, flash
 from markupsafe import Markup
+from werkzeug.utils import secure_filename
 
 from db.requests import PostRepository
 from db.models import init_db
 from utils.md_to_html import make_post
 
+UPLOAD_FOLDER = '/static'
+ALLOWED_EXTENSIONS = {'md', 'png', 'jpg', 'jpeg', 'gif'}
+
 app = Flask(__name__)
+dotenv.load_dotenv('.env/config.env')
+app.config['SECRET_KEY'] = getenv('SECRET_KEY')
+app.config['UPLOAD_FOLDER'] = UPLOAD_FOLDER
 
 nav = []
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+           filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
 
 
 @app.route('/')
@@ -36,6 +51,35 @@ def post(id: int):
         return render_template('app/post.html', title='Блог', nav=nav, content=Markup(make_post(post['md_file_path'])))
     else:
         return redirect(url_for('blog'))
+
+
+@app.route('/newpost', methods=['POST', 'GET'])
+def new_post():
+    if request.method == 'POST':
+        form = dict(request.form)
+
+        if 'img-file' not in request.files:
+            print('1')
+            flash('No image file selected')
+            return redirect(request.url)
+        img_file = request.files['img-file']
+        if img_file.filename == '':
+            print('2')
+            flash('No image file selected')
+            return redirect(request.url)
+        if img_file and allowed_file(img_file.filename):
+            filename = secure_filename(img_file.filename)
+            img_file.save(path.join(app.config['UPLOAD_FOLDER'], 'img', filename))
+            return redirect(url_for('download_file', name=filename))
+
+        # code, message = PostRepository.add_post(form)
+        # if code == 201:
+        #     flash('Пост был создан')
+        # else:
+        #     flash('Ошибка')
+        
+        # code, message = PostRepository.add_post()
+    return render_template('app/newpost.html', title='Новый пост', nav=nav)
 
 
 @app.route('/gallery')
