@@ -23,7 +23,7 @@ def blog():
     else:
         return render_template('app/blog.html', title='Блог', nav=nav, posts=[])
     for post in posts:
-        post['banner_photo_path'] = url_for('static', filename=f'img/{post['banner_photo_path']}')
+        post['banner_photo_path'] = url_for('static', filename=f'img/{post["banner_photo_path"]}')
         post['content'] = make_post(post['md_file_path'])
         post['url'] = url_for('post', id=post['id'])
     return render_template('app/blog.html', title='Блог', nav=nav, posts=posts)
