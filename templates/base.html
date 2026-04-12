@@ -12,7 +12,7 @@
 </header>
 <main>
 <div class="left">
-    <nav>
+    <nav class="container-outline">
         {% for item in nav %}
         <button class="button-dark" onclick="redirect('{{item.url}}')" style="width: 100%;">
             {{ item.title }}
@@ -25,7 +25,9 @@
 {% endblock%}
 </div>
 <div class="right">
-
+<div class="container-outline" style="padding: 10px;">
+    Выделил правый блок, но не знаю что туда разместить. Рекламу?
+</div>
 </div>
 </main>
 <footer>

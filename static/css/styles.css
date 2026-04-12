@@ -166,9 +166,13 @@ nav {
     width: 100%;
     gap: 10px;
     padding: 10px;
+}
+
+.container-outline {
     border: 2px solid var(--color-dark);
     border-radius: 10px;
 }
+
 .link-title {
     text-decoration: none;
     transition: all ease-in-out 0.25s;
