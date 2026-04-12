@@ -1,6 +1,8 @@
 import sys
-import schedule
 import time
+
+import schedule
+import gunicorn.app.wsgiapp
 
 from app import app as application
 from app import parse_tracks
