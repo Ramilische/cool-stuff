@@ -3,7 +3,9 @@
 {% block content %}
 <h1>{{ title }}</h1>
 
+<div class="albums">
 {% for album in albums %}
-<button onclick="redirect('{{ url_for('album', title=album.title) }}')">{{ album.title }}</button>
+    <button class="button-dark" onclick="redirect('{{ url_for('album', title=album.title) }}')">{{ album.title }}</button>
 {% endfor %}
+</div>
 {% endblock %}

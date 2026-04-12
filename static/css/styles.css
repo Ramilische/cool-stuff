@@ -169,6 +169,15 @@ nav {
     border: 2px solid var(--color-dark);
     border-radius: 10px;
 }
+.link-title {
+    text-decoration: none;
+    transition: all ease-in-out 0.25s;
+}
+.link-title:hover {
+    cursor: pointer;
+    transition: all ease-in-out 0.25s;
+    color: var(--color-lavender);
+}
 
 .left
 {
@@ -214,9 +223,17 @@ nav {
 
     background-color: var(--color-dark);
     color: var(--color-light);
+
+    transition: all ease-in-out 0.25s;
+}
+.button-dark:hover {
+    transition: all ease-in-out 0.25s;
+    color: var(--color-lavender);
 }
 
-.track {
-    display: block;
-    max-width: 500px;
+.albums {
+    display: grid;
+    grid-template-columns: auto-fit;
+    grid-auto-rows: auto;
+    row-gap: 20px;
 }

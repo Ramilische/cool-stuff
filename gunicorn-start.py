@@ -1,8 +1,7 @@
 import platform
-from app import app
-from app import parse_tracks
-from app import albums
+from application import app
 from db.models import init_db
+from utils.tracks import parse_tracks
 
 
 HOST = '127.0.0.1'
