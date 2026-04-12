@@ -18,3 +18,4 @@ wheels/
 start.sh
 debug.sh
 test.py
+/static/audio/*

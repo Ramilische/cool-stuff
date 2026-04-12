@@ -1,0 +1,9 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<h1>{{ title }}</h1>
+
+{% for album in albums %}
+<button onclick="redirect('{{ url_for('album', title=album.title) }}')">{{ album.title }}</button>
+{% endfor %}
+{% endblock %}

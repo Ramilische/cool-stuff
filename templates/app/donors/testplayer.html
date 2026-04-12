@@ -1,0 +1,426 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+  <title>🎧 Spotify‑style плеер</title>
+  <!-- Font Awesome для иконок -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+  <link rel="stylesheet" type="text/css" href="{{ url_for('static', filename='css/player.css') }}">
+</head>
+<body>
+<div class="app">
+  <!-- Верхняя часть: плейлист -->
+  <div class="playlist-header">
+    <h1><i class="fas fa-headphones-alt"></i> Плейлист дня</h1>
+  </div>
+
+  <!-- Контейнер для списка треков -->
+  <div class="playlist-container" id="playlistContainer">
+    <!-- Треки будут вставлены через JS -->
+    <div class="empty-message">Загрузка треков...</div>
+  </div>
+
+  <!-- Нижний плеер (Spotify‑bar) -->
+  <div class="player-bar">
+    <!-- Сейчас играет -->
+    <div class="now-playing" id="nowPlayingInfo">
+      <div class="now-cover" id="nowCover">
+        <i class="fas fa-music"></i>
+      </div>
+      <div class="now-info">
+        <div class="now-title" id="nowTitle">Не выбрано</div>
+        <div class="now-artist" id="nowArtist">—</div>
+      </div>
+    </div>
+
+    <!-- Центральная панель управления -->
+    <div class="player-controls">
+      <div class="control-buttons">
+        <button class="control-btn" id="prevBtn" title="Предыдущий"><i class="fas fa-step-backward"></i></button>
+        <button class="control-btn play-pause-btn" id="playPauseBtn"><i class="fas fa-play" id="playIcon"></i></button>
+        <button class="control-btn" id="nextBtn" title="Следующий"><i class="fas fa-step-forward"></i></button>
+      </div>
+      <div class="progress-container">
+        <span class="time-current" id="currentTime">0:00</span>
+        <input type="range" class="progress-slider" id="progressSlider" min="0" max="100" value="0" step="0.1">
+        <span class="time-duration" id="durationTime">0:00</span>
+      </div>
+    </div>
+
+    <!-- Регулятор громкости -->
+    <div class="volume-control">
+      <i class="fas fa-volume-up volume-icon" id="volumeIcon"></i>
+      <input type="range" class="volume-slider" id="volumeSlider" min="0" max="1" step="0.01" value="0.8">
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+    "use strict";
+
+    // ---------- Данные треков (примеры mp3 с открытых источников) ----------
+    const tracks = [
+        {
+            title: "Synthwave Dreams",
+            artist: "SoundHelix",
+            duration: "2:18",
+            src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
+            coverIcon: "fa-guitar"
+        },
+        {
+            title: "Electronic Vibes",
+            artist: "SoundHelix",
+            duration: "2:42",
+            src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
+            coverIcon: "fa-headphones"
+        },
+        {
+            title: "Piano Serenity",
+            artist: "SoundHelix",
+            duration: "3:06",
+            src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-3.mp3",
+            coverIcon: "fa-piano"
+        },
+        {
+            title: "Chill Lo-Fi",
+            artist: "SoundHelix",
+            duration: "2:55",
+            src: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3",
+            coverIcon: "fa-cloud"
+        }
+    ];
+
+    // ---------- DOM элементы ----------
+    const playlistContainer = document.getElementById('playlistContainer');
+    const nowTitle = document.getElementById('nowTitle');
+    const nowArtist = document.getElementById('nowArtist');
+    const nowCover = document.getElementById('nowCover');
+    const playPauseBtn = document.getElementById('playPauseBtn');
+    const playIcon = document.getElementById('playIcon');
+    const prevBtn = document.getElementById('prevBtn');
+    const nextBtn = document.getElementById('nextBtn');
+    const progressSlider = document.getElementById('progressSlider');
+    const currentTimeSpan = document.getElementById('currentTime');
+    const durationTimeSpan = document.getElementById('durationTime');
+    const volumeSlider = document.getElementById('volumeSlider');
+    const volumeIcon = document.getElementById('volumeIcon');
+
+    // ---------- Состояние плеера ----------
+    let currentTrackIndex = 0;           // индекс активного трека
+    let isPlaying = false;
+    let audio = new Audio();
+    let trackElements = [];              // массив DOM-элементов треков
+
+    // Инициализация громкости
+    audio.volume = 0.8;
+    volumeSlider.value = '0.8';
+
+    // ---------- Вспомогательные функции ----------
+    function formatTime(seconds) {
+        if (isNaN(seconds)) return '0:00';
+        const mins = Math.floor(seconds / 60);
+        const secs = Math.floor(seconds % 60);
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
+    }
+
+    // Обновить UI плеера (название, обложка)
+    function updatePlayerUI() {
+        const track = tracks[currentTrackIndex];
+        nowTitle.textContent = track.title;
+        nowArtist.textContent = track.artist;
+        // Меняем иконку обложки
+        nowCover.innerHTML = `<i class="fas ${track.coverIcon}"></i>`;
+      
+        // Подсветка активного трека в списке
+        trackElements.forEach((el, idx) => {
+            if (idx === currentTrackIndex) {
+                el.classList.add('active');
+            } else {
+                el.classList.remove('active');
+            }
+        });
+    }
+
+    // Загрузить трек по индексу (но не играть автоматически, только подготовить)
+    function loadTrack(index) {
+        if (!tracks[index]) return;
+        const wasPlaying = isPlaying;
+      
+        // Если аудио уже играло, остановим
+        audio.pause();
+      
+        const track = tracks[index];
+        audio.src = track.src;
+        audio.load();
+      
+        currentTrackIndex = index;
+        updatePlayerUI();
+      
+        // Сброс прогресса
+        progressSlider.value = 0;
+        currentTimeSpan.textContent = '0:00';
+      
+        // Если трек играл до переключения — начинаем играть новый
+        if (wasPlaying) {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.catch(e => {
+                    console.warn('Автовоспроизведение заблокировано, нажмите play');
+                    isPlaying = false;
+                    updatePlayButton();
+                });
+            }
+            isPlaying = true;
+        } else {
+            isPlaying = false;
+        }
+        updatePlayButton();
+    }
+
+    // Воспроизведение / пауза
+    function togglePlay() {
+        if (!audio.src || audio.src === window.location.href) {
+            // Если источник не задан (напр. при первой загрузке) — загружаем первый трек
+            if (tracks.length > 0) {
+                loadTrack(0);
+            } else {
+                return;
+            }
+        }
+      
+        if (isPlaying) {
+            audio.pause();
+            isPlaying = false;
+        } else {
+            const playPromise = audio.play();
+            if (playPromise !== undefined) {
+                playPromise.then(() => {
+                isPlaying = true;
+            }).catch(err => {
+                console.warn('Ошибка воспроизведения:', err);
+                isPlaying = false;
+            }).finally(() => {
+                updatePlayButton();
+            });
+            }
+        }
+        updatePlayButton();
+    }
+
+    function updatePlayButton() {
+        if (isPlaying) {
+            playIcon.className = 'fas fa-pause';
+        } else {
+            playIcon.className = 'fas fa-play';
+        }
+    }
+
+    // Следующий трек
+    function nextTrack() {
+        if (tracks.length === 0) return;
+        let nextIndex = (currentTrackIndex + 1) % tracks.length;
+        loadTrack(nextIndex);
+        if (!isPlaying) {
+            // если не играло — после загрузки начнём играть (loadTrack учтёт wasPlaying)
+            // но loadTrack смотрит на isPlaying до смены, поэтому явно запустим
+            if (!isPlaying) {
+                audio.play().then(() => { isPlaying = true; updatePlayButton(); }).catch(()=>{});
+            }
+        }
+    }
+
+    // Предыдущий трек
+    function prevTrack() {
+        if (tracks.length === 0) return;
+        let prevIndex = (currentTrackIndex - 1 + tracks.length) % tracks.length;
+        loadTrack(prevIndex);
+        if (!isPlaying) {
+            audio.play().then(() => { isPlaying = true; updatePlayButton(); }).catch(()=>{});
+        }
+    }
+
+    // Обновление прогресса (timeupdate)
+    function updateProgress() {
+        if (audio.duration) {
+            const percent = (audio.currentTime / audio.duration) * 100;
+            progressSlider.value = percent;
+            currentTimeSpan.textContent = formatTime(audio.currentTime);
+            durationTimeSpan.textContent = formatTime(audio.duration);
+        } else {
+            durationTimeSpan.textContent = tracks[currentTrackIndex]?.duration || '0:00';
+        }
+    }
+
+    // Перемотка при изменении слайдера
+    function seekAudio() {
+        if (!audio.duration) return;
+        const seekTime = (progressSlider.value / 100) * audio.duration;
+        audio.currentTime = seekTime;
+    }
+
+    // Изменение громкости
+    function setVolume() {
+        audio.volume = volumeSlider.value;
+        // Меняем иконку громкости
+        const vol = audio.volume;
+        if (vol === 0) {
+            volumeIcon.className = 'fas fa-volume-mute volume-icon';
+        } else if (vol < 0.5) {
+            volumeIcon.className = 'fas fa-volume-down volume-icon';
+        } else {
+            volumeIcon.className = 'fas fa-volume-up volume-icon';
+        }
+    }
+
+    // Обработка окончания трека
+    function onTrackEnded() {
+        // Автоматически следующий трек
+        nextTrack();
+    }
+
+    // Создание элементов списка треков
+    function renderPlaylist() {
+        playlistContainer.innerHTML = '';
+        trackElements = [];
+      
+        tracks.forEach((track, index) => {
+            const item = document.createElement('div');
+            item.className = 'track-item';
+            if (index === currentTrackIndex) item.classList.add('active');
+        
+            // Обложка трека в списке
+            const coverDiv = document.createElement('div');
+            coverDiv.className = 'track-cover';
+            coverDiv.innerHTML = `<i class="fas ${track.coverIcon}"></i>`;
+        
+            // Информация
+            const infoDiv = document.createElement('div');
+            infoDiv.className = 'track-info';
+            infoDiv.innerHTML = `
+            <div class="track-title">${track.title}</div>
+            <div class="track-artist">${track.artist}</div>
+            `;
+        
+            // Длительность
+            const durationSpan = document.createElement('span');
+            durationSpan.className = 'track-duration';
+            durationSpan.textContent = track.duration;
+        
+            // Иконка play при наведении
+            const playIndicator = document.createElement('span');
+            playIndicator.className = 'play-icon';
+            playIndicator.innerHTML = '<i class="fas fa-play"></i>';
+        
+            item.appendChild(coverDiv);
+            item.appendChild(infoDiv);
+            item.appendChild(durationSpan);
+            item.appendChild(playIndicator);
+        
+            // Клик по треку — воспроизвести
+            item.addEventListener('click', (e) => {
+                // Если трек уже активен, просто переключаем play/pause
+                if (currentTrackIndex === index) {
+                    togglePlay();
+                } else {
+                    // Меняем трек и начинаем воспроизведение
+                    loadTrack(index);
+                    // Запускаем проигрывание
+                    audio.play().then(() => {
+                        isPlaying = true;
+                        updatePlayButton();
+                    }).catch(err => {
+                        console.warn('Ошибка при клике на трек:', err);
+                    });
+                }
+            });
+        
+            playlistContainer.appendChild(item);
+            trackElements.push(item);
+        });
+      
+        // Если треки есть, загрузим первый, но не запускаем авто-плей (пользователь сам нажмёт)
+        if (tracks.length > 0) {
+            // Инициализация: загружаем первый трек в плеер (без автовоспроизведения)
+            audio.src = tracks[0].src;
+            audio.load();
+            currentTrackIndex = 0;
+            updatePlayerUI();
+            durationTimeSpan.textContent = tracks[0].duration;
+            currentTimeSpan.textContent = '0:00';
+        }
+    }
+
+    // ---------- Привязка событий ----------
+    function bindEvents() {
+        // Управление плеером
+        playPauseBtn.addEventListener('click', togglePlay);
+        prevBtn.addEventListener('click', prevTrack);
+        nextBtn.addEventListener('click', nextTrack);
+      
+        // Аудио события
+        audio.addEventListener('timeupdate', updateProgress);
+        audio.addEventListener('loadedmetadata', () => {
+            durationTimeSpan.textContent = formatTime(audio.duration);
+            // если длительность из метаданных отличается от статичной, обновим
+            const track = tracks[currentTrackIndex];
+            if (track) {
+                // можно оставить статичную, но показываем реальную
+            }
+        });
+        audio.addEventListener('ended', onTrackEnded);
+        audio.addEventListener('play', () => {
+            isPlaying = true;
+            updatePlayButton();
+        });
+        audio.addEventListener('pause', () => {
+            isPlaying = false;
+            updatePlayButton();
+        });
+        audio.addEventListener('error', (e) => {
+            console.error('Ошибка загрузки аудио:', e);
+            alert('Не удалось загрузить трек. Возможно, ссылка недоступна.');
+            isPlaying = false;
+            updatePlayButton();
+        });
+      
+        // Прогресс слайдер
+        progressSlider.addEventListener('input', seekAudio);
+      
+        // Громкость
+        volumeSlider.addEventListener('input', setVolume);
+      
+        // Дополнительно: клик по иконке громкости для mute/unmute (опционально)
+        volumeIcon.addEventListener('click', () => {
+            if (audio.volume > 0) {
+                audio.volume = 0;
+                volumeSlider.value = 0;
+            } else {
+                audio.volume = 0.8;
+            volumeSlider.value = 0.8;
+            }
+            setVolume();
+        });
+    }
+
+    // ---------- Инициализация ----------
+    function init() {
+        renderPlaylist();
+        bindEvents();
+        setVolume(); // установить иконку громкости
+      
+        // Предзагрузка первого трека без автовоспроизведения
+        if (tracks.length > 0) {
+            audio.src = tracks[0].src;
+            audio.load();
+            updatePlayerUI();
+            durationTimeSpan.textContent = tracks[0].duration;
+        }
+    }
+
+    init();
+})();
+</script>
+</body>
+</html>

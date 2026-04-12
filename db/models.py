@@ -22,6 +22,17 @@ class Post(Base):
     create_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
 
 
+class Music(Base):
+    __tablename__ = 'music'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String, nullable=False, default='Без названия')
+    artist: Mapped[str] = mapped_column(String, default='Неизвестен')
+    duration: Mapped[str] = mapped_column(String, nullable=False)
+    album: Mapped[str] = mapped_column(String, nullable=True)
+    filename: Mapped[str] = mapped_column(String, nullable=False)
+
+
 def init_db():
     with engine.begin() as conn:
         Base.metadata.create_all(bind=conn)

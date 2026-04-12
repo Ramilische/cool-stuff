@@ -10,6 +10,8 @@
     --color-secondary: #F5A1A1;
     --color-lavender: #A69ACA;
     --color-purple: #6F4367;
+
+    font-size: 24px;
 }
 
 * {
@@ -39,24 +41,20 @@ h3 {
 }
 
 p {
-    font-size: 24px;
     margin: 5px 0;
 }
 
 a {
-    font-size: 24px;
     text-decoration: underline;
     color: var(--color-lavender);
 }
 
 ul {
     margin: 0;
-    font-size: 24px;
 }
 
 ol {
     margin: 0;
-    font-size: 24px;
 }
 
 button,
@@ -67,10 +65,6 @@ textarea {
     font-size: 100%;
 }
 
-form
-{
-    font-size: 24px;
-}
 form input {
     width: 400px;
     padding: 0 0 0 5px;
@@ -78,9 +72,9 @@ form input {
     border: 2px solid var(--color-dark);
     border-radius: 10px;
 }
-input[type="file"] {
+/* input[type="file"] {
     display: none;
-}
+} */
 
 .custom-file-upload {
     display: inline-block;
@@ -124,6 +118,21 @@ body {
     justify-content: space-between;
 
     background-color: var(--color-light);
+    scrollbar-width: 8px;
+    scrollbar-color: var(--color-dark);
+}
+::-webkit-scrollbar {
+    width: 8px;
+}
+
+::-webkit-scrollbar-track {
+    background: var(--color-dark);
+    border-radius: 10px;
+}
+
+::-webkit-scrollbar-thumb {
+    background: var(--color-lavender);
+    border-radius: 10px;
 }
 
 header {
@@ -205,4 +214,9 @@ nav {
 
     background-color: var(--color-dark);
     color: var(--color-light);
+}
+
+.track {
+    display: block;
+    max-width: 500px;
 }

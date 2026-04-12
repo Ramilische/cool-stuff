@@ -1,6 +1,10 @@
 import sys
+import schedule
+import time
 
 from app import app as application
+from app import parse_tracks
+from app import albums
 from db.models import init_db
 
 HOST = '127.0.0.1'
@@ -17,4 +21,5 @@ if __name__ == '__main__':
     elif sys.argv[1] == '--debug' and sys.argv[2] in yes_words:
         DEBUG = True
     init_db()
+    parse_tracks()
     application.run(host=HOST, port=PORT, debug=DEBUG)

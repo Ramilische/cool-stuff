@@ -11,22 +11,22 @@
     <h1 class="alt-text-color">Хранилище Ramilische</h1>
 </header>
 <main>
-    <div class="left">
-        <nav>
-            {% for item in nav %}
-            <button class="button-dark" onclick="redirect('{{item.url}}')" style="width: 100%;">
-                {{ item.title }}
-            </button>
-            {% endfor %}
-        </nav>
-    </div>
-    <div class="center">
-    {% block content %}
-    {% endblock%}
-    </div>
-    <div class="right">
+<div class="left">
+    <nav>
+        {% for item in nav %}
+        <button class="button-dark" onclick="redirect('{{item.url}}')" style="width: 100%;">
+            {{ item.title }}
+        </button>
+        {% endfor %}
+    </nav>
+</div>
+<div class="center">
+{% block content %}
+{% endblock%}
+</div>
+<div class="right">
 
-    </div>
+</div>
 </main>
 <footer>
 </footer>
