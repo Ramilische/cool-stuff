@@ -17,6 +17,19 @@ class Post(Base):
     id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
     title: Mapped[str] = mapped_column(String, nullable=False)
     description: Mapped[str] = mapped_column(String, nullable=True)
+    category: Mapped[str] = mapped_column(String)
+    markdown_file_path: Mapped[str] = mapped_column(String)
+    banner_photo_path: Mapped[str] = mapped_column(String, nullable=True)
+    create_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())
+
+
+class Recipe(Base):
+    __tablename__ = 'recipes'
+
+    id: Mapped[int] = mapped_column(primary_key=True, autoincrement=True)
+    title: Mapped[str] = mapped_column(String, nullable=False)
+    description: Mapped[str] = mapped_column(String, nullable=True)
+    category: Mapped[str] = mapped_column(String)
     markdown_file_path: Mapped[str] = mapped_column(String)
     banner_photo_path: Mapped[str] = mapped_column(String, nullable=True)
     create_time: Mapped[datetime] = mapped_column(DateTime, default=datetime.now())

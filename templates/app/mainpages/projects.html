@@ -2,5 +2,28 @@
 
 {% block content %}
 <h1>{{ title }}</h1>
-<p>Здесь буду размещать ссылки на мои проекты - сайты, боты, игры</p>
+<div class="posts">
+    {% for post in posts %}
+    <div class="card">
+        <img src="{{post.banner_photo_path}}" alt="Баннер">
+        <div style="padding: 0 10px 10px 10px;">
+            <h3 class="link-title" onclick="redirect('{{post.url}}')">{{post.title}}</h3>
+            <p>{{post.description}}</p>
+            <button class="button-dark" onclick="redirect('{{post.url}}')">Читать</button>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+<!-- <div class="masonry-grid" id="masonryGrid">
+
+</div>
+<script>
+
+</script> -->
+{% endblock %}
+
+{% block right %}
+<!-- <div class="container-outline" style="padding: 10px;">
+    Тут будут фильтры
+</div> -->
 {% endblock %}

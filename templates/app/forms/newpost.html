@@ -8,12 +8,17 @@
 {% endfor %}
 
 <form action="/newpost" target="_self" method="post">
+    <label for="page-input">Страница (Блог, Рецепты и т.д.)</label><br>
+    <input type="text" name="page" id="page-input"><br>
 
     <label for="title-input">Заголовок</label><br>
     <input type="text" name="title" id="title-input"><br>
 
     <label for="desc-input">Описание</label><br>
     <input type="text" name="desc" id="desc-input"><br>
+
+    <label for="category-input">Категория (хэштег например)</label><br>
+    <input type="text" name="category" id="category-input"><br>
 
     <label for="md-input">Путь до файла статьи</label><br>
     <input type="text" name="md-path" id="md-input"><br>

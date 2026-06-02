@@ -31,11 +31,26 @@ def homepage():
     return redirect(url_for('blog'))
 
 
+@app.route('/blog/category/<category>')
+def blog_category(category: str):
+    code, res = PostRepository.category_posts(category)
+    if code == 200:
+        posts = res['posts']
+        ru_name = res['ru_name']
+    else:
+        return render_template('app/blog.html', title='Блог', nav=nav, posts=[])
+    for post in posts:
+        post['banner_photo_path'] = url_for('static', filename=f'img/{post["banner_photo_path"]}')
+        post['content'] = make_post(post['md_file_path'])
+        post['url'] = url_for('post', id=post['id'])
+    return render_template('app/blog.html', title=ru_name, nav=nav, posts=posts)
+
+
 @app.route('/blog')
 def blog():
-    code, res = PostRepository.all_posts()
+    code, res = PostRepository.all_blog_posts()
     if code == 200:
-        posts = res
+        posts = res['posts']
     else:
         return render_template('app/blog.html', title='Блог', nav=nav, posts=[])
     for post in posts:
@@ -47,12 +62,21 @@ def blog():
 
 @app.route('/post/<int:id>')
 def post(id: int):
-    code, post = PostRepository.get_post(post_id=id)
+    code, res = PostRepository.get_post(post_id=id)
     if code == 200:
-        return render_template('app/post.html', title='Блог', nav=nav, content=Markup(make_post(post['md_file_path'])))
+        post = res['post']
+        return render_template('app/post.html', title=post['title'], nav=nav, content=Markup(make_post(post['md_file_path'])))
     else:
         return redirect(url_for('blog'))
 
+@app.route('/recipe/<int:id>')
+def recipe(id: int):
+    code, res = PostRepository.get_recipe(post_id=id)
+    if code == 200:
+        post = res['post']
+        return render_template('app/post.html', title=post['title'], nav=nav, content=Markup(make_post(post['md_file_path'])))
+    else:
+        return redirect(url_for('blog'))
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
@@ -73,15 +97,12 @@ def new_post():
         #     img_file.save(path.join(app.config['UPLOAD_FOLDER'], 'img', filename))
         #     return redirect(url_for('download_file', name=filename))
 
-        code, message = PostRepository.add_post(form)
+        code, res = PostRepository.add_post(form)
         if code == 201:
             flash('Пост был создан')
         else:
-            flash(f'Ошибка, {message}')
-        
-        code, message = PostRepository.add_post()
+            flash(f'Ошибка, {res['message']}')
     return render_template('app/forms/newpost.html', title='Новый пост', nav=nav)
-
 
 @app.route('/gallery')
 def gallery():
@@ -111,7 +132,17 @@ def reload_music():
 
 @app.route('/recipes')
 def recipes():
-    return render_template('app/mainpages/recipes.html', title='Рецепты', nav=nav)
+    code, res = PostRepository.all_recipes()
+    if code == 200:
+        posts = res['posts']
+    else:
+        return render_template('app/blog.html', title='Рецепты', nav=nav, posts=[])
+    for post in posts:
+        post['banner_photo_path'] = url_for('static', filename=f'img/{post["banner_photo_path"]}')
+        post['content'] = make_post(post['md_file_path'])
+        post['url'] = url_for('post', id=post['id'])
+    return render_template('app/blog.html', title='Рецепты', nav=nav, posts=posts)
+    # return render_template('app/mainpages/recipes.html', title='Рецепты', nav=nav)
 
 
 @app.route('/projects')
