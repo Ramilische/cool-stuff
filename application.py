@@ -140,7 +140,7 @@ def recipes():
     for post in posts:
         post['banner_photo_path'] = url_for('static', filename=f'img/{post["banner_photo_path"]}')
         post['content'] = make_post(post['md_file_path'])
-        post['url'] = url_for('post', id=post['id'])
+        post['url'] = url_for('recipe', id=post['id'])
     return render_template('app/blog.html', title='Рецепты', nav=nav, posts=posts)
     # return render_template('app/mainpages/recipes.html', title='Рецепты', nav=nav)
 

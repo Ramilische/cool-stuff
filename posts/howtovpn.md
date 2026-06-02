@@ -1,4 +1,4 @@
 # АГААААААА ПОПАЛСЯ, ВРАГ НАРОДА
 
-![Фото](../static/img/vpnbad.jpg)
+![Фото](../static/img/recipes/blin/Pastedimage20260525141414.png)
 
