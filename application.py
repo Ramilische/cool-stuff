@@ -101,7 +101,7 @@ def new_post():
         if code == 201:
             flash('Пост был создан')
         else:
-            flash(f'Ошибка, {res['message']}')
+            flash(f'Ошибка, {res["message"]}')
     return render_template('app/forms/newpost.html', title='Новый пост', nav=nav)
 
 @app.route('/gallery')
