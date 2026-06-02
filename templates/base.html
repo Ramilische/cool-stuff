@@ -4,6 +4,9 @@
     <title>{{ title }}</title>
     <meta charset="utf-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta property="og:title" content="{{ title }}">
+    <meta property="og:description" content="{{ desc }}">
+    <meta property="og:image" content="{{ url_for('static', filename='img/blogscreenshot.jpg') }}">
     <link type="text/css" href="{{ url_for('static', filename='css/styles.css') }}" rel="stylesheet">
 </head>
 <body>

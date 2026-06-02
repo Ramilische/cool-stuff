@@ -43,21 +43,25 @@ def blog_category(category: str):
         post['banner_photo_path'] = url_for('static', filename=f'img/{post["banner_photo_path"]}')
         post['content'] = make_post(post['md_file_path'])
         post['url'] = url_for('post', id=post['id'])
-    return render_template('app/blog.html', title=ru_name, nav=nav, posts=posts)
+    return render_template('app/blog.html', title=ru_name, desc='Категория блога', nav=nav, posts=posts)
 
 
 @app.route('/blog')
 def blog():
     code, res = PostRepository.all_blog_posts()
+    title = 'Блог'
+    desc = 'Посты на различные темы. Здесь я делюсь мнением об IT, процессом разработки своих проектов, болтаю о жизни. Короче мнения одного человека обо всем и ни о чем, можешь даже не открывать'
+    
     if code == 200:
         posts = res['posts']
     else:
-        return render_template('app/blog.html', title='Блог', nav=nav, posts=[])
+        return render_template('app/blog.html', title=title, desc=desc, nav=nav, posts=[])
     for post in posts:
         post['banner_photo_path'] = url_for('static', filename=f'img/{post["banner_photo_path"]}')
         post['content'] = make_post(post['md_file_path'])
         post['url'] = url_for('post', id=post['id'])
-    return render_template('app/blog.html', title='Блог', nav=nav, posts=posts)
+    
+    return render_template('app/blog.html', title=title, desc=desc, nav=nav, posts=posts)
 
 
 @app.route('/post/<int:id>')
@@ -65,7 +69,7 @@ def post(id: int):
     code, res = PostRepository.get_post(post_id=id)
     if code == 200:
         post = res['post']
-        return render_template('app/post.html', title=post['title'], nav=nav, content=Markup(make_post(post['md_file_path'])))
+        return render_template('app/post.html', title=post['title'], desc=post['description'], nav=nav, content=Markup(make_post(post['md_file_path'])))
     else:
         return redirect(url_for('blog'))
 
@@ -74,12 +78,15 @@ def recipe(id: int):
     code, res = PostRepository.get_recipe(post_id=id)
     if code == 200:
         post = res['post']
-        return render_template('app/post.html', title=post['title'], nav=nav, content=Markup(make_post(post['md_file_path'])))
+        return render_template('app/post.html', title=post['title'], desc=post['description'], nav=nav, content=Markup(make_post(post['md_file_path'])))
     else:
         return redirect(url_for('blog'))
 
 @app.route('/newpost', methods=['POST', 'GET'])
 def new_post():
+    title = 'Новый пост'
+    desc = 'Окно создания нового поста, сделать бы его только для админов'
+
     if request.method == 'POST':
         form = dict(request.form)
         # print(request.files)
@@ -102,26 +109,37 @@ def new_post():
             flash('Пост был создан')
         else:
             flash(f'Ошибка, {res["message"]}')
-    return render_template('app/forms/newpost.html', title='Новый пост', nav=nav)
+    
+    return render_template('app/forms/newpost.html', title=title, desc=desc, nav=nav)
 
 @app.route('/gallery')
 def gallery():
-    return render_template('app/mainpages/gallery.html', title='Галерея', nav=nav)
+    title = 'Галерея'
+    desc = 'Здесь будет несколько категорий изображений, которые я собирал. Обои, мемы, панели из манги и т.п.'
+
+    return render_template('app/mainpages/gallery.html', title=title, desc=desc, nav=nav)
 
 
-@app.route('/music/<title>')
-def album(title: str):
+@app.route('/music/<album_title>')
+def album(album_title: str):
+    title = album_title
+    desc = alb['description']
+
     alb = dict()
     for album in albums:
-        print(album)
-        if album['title'] == title:
+        if album['title'] == album_title:
             alb = album
     
-    return render_template('app/player.html', title=title, nav=nav, album=alb)
+    if not alb:
+        return redirect(url_for('music'))
+    return render_template('app/player.html', title=title, desc=desc, nav=nav, album=alb)
 
 @app.route('/music')
 def music():
-    return render_template('app/mainpages/music.html', title='Плейлисты', nav=nav, albums=albums)
+    title = 'Плейлисты'
+    desc = 'Часть моей музыкальной коллекции, которой не стыдно поделиться'
+
+    return render_template('app/mainpages/music.html', title=title, desc=desc, nav=nav, albums=albums)
 
 @app.route('/reloadmusic')
 def reload_music():
@@ -133,26 +151,37 @@ def reload_music():
 @app.route('/recipes')
 def recipes():
     code, res = PostRepository.all_recipes()
+    title = 'Рецепты'
+    desc = 'Здесь я делюсь рецептами, их не так уж и много. Многие из этих рецептов можно найти в Сети'
+
     if code == 200:
         posts = res['posts']
     else:
         return render_template('app/blog.html', title='Рецепты', nav=nav, posts=[])
+    
     for post in posts:
         post['banner_photo_path'] = url_for('static', filename=f'img/{post["banner_photo_path"]}')
         post['content'] = make_post(post['md_file_path'])
         post['url'] = url_for('recipe', id=post['id'])
-    return render_template('app/blog.html', title='Рецепты', nav=nav, posts=posts)
+    
+    return render_template('app/blog.html', title=title, desc=desc, nav=nav, posts=posts)
     # return render_template('app/mainpages/recipes.html', title='Рецепты', nav=nav)
 
 
 @app.route('/projects')
 def projects():
-    return render_template('app/mainpages/projects.html', title='Проекты', nav=nav)
+    title = 'Проекты'
+    desc = 'Сюда я буду кидать ссылки на свои проекты: сайты, Telegram ботов, игры (если буду выкладывать в Стим)'
+
+    return render_template('app/mainpages/projects.html', title=title, desc=desc, nav=nav)
 
 
 @app.route('/recommendations')
 def recommendations():
-    return render_template('app/mainpages/recommendations.html', title='Рекомендации', nav=nav)
+    title = 'Рекомендации'
+    desc = 'Место для моих самых разных рекомендаций - от классной шавухи до интересного сайта, в котором можно залипнуть'
+
+    return render_template('app/mainpages/recommendations.html', title=title, desc=desc, nav=nav)
 
 
 with app.test_request_context('/', method='GET'):
