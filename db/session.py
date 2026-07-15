@@ -24,6 +24,6 @@ class Settings(BaseSettings):
 
 settings = Settings() # type: ignore
 print(settings.get_db_url_pg())
-engine = create_engine(url=settings.get_db_url_pg(), echo=True)
+engine = create_engine(url=settings.get_db_url_pg(), echo=True, pool_pre_ping=True, pool_recycle=120)
 
 session = sessionmaker(bind=engine, expire_on_commit=False)
