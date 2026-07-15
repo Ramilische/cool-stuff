@@ -5,7 +5,7 @@
 
 <div class="albums">
 {% for album in albums %}
-    <button class="button-dark" onclick="redirect('{{ url_for('album', title=album.title) }}')">{{ album.title }}</button>
+    <button class="button-dark" onclick="redirect('{{ url_for('album', album_title=album.title) }}')">{{ album.title }}</button>
 {% endfor %}
 </div>
 {% endblock %}

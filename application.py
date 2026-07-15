@@ -123,7 +123,6 @@ def gallery():
 @app.route('/music/<album_title>')
 def album(album_title: str):
     title = album_title
-    desc = alb['description']
 
     alb = dict()
     for album in albums:
@@ -132,6 +131,7 @@ def album(album_title: str):
     
     if not alb:
         return redirect(url_for('music'))
+    desc = alb['description']
     return render_template('app/player.html', title=title, desc=desc, nav=nav, album=alb)
 
 @app.route('/music')
@@ -185,29 +185,8 @@ def recommendations():
 
 
 with app.test_request_context('/', method='GET'):
-    nav = [
-    {
-        'url': url_for('blog'),
-        'title': 'Блог'
-    },
-    {
-        'url': url_for('gallery'),
-        'title': 'Галерея'
-    },
-    {
-        'url': url_for('music'),
-        'title': 'Музыка'
-    },
-    {
-        'url': url_for('recipes'),
-        'title': 'Рецепты'
-    },
-    {
-        'url': url_for('projects'),
-        'title': 'Проекты'
-    },
-    {
-        'url': url_for('recommendations'),
-        'title': 'Рекомендации'
-    }
-    ]
+    url_dict = [('blog', 'Блог'), ('gallery', 'Галерея'), ('music', 'Музыка'), ('recipes', 'Рецепты'), 
+                ('projects', 'Проекты'), ('recommendations', 'Рекомендации')]
+    nav = list()
+    for url in url_dict:
+        nav.append({'url': url_for(url[0]), 'title': url[1]})
